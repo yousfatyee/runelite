@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Tomas Slusny <slusnucky@gmail.com>
+ * Copyright (c) 2025, Adam <Adam@sigterm.info>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,14 +24,53 @@
  */
 package net.runelite.client.plugins.xptracker;
 
-import lombok.Data;
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
+import com.google.inject.Inject;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import net.runelite.api.Skill;
+import net.runelite.client.config.ConfigSerializer;
+import net.runelite.client.config.Serializer;
 
-@Data
-class XpAction
+@ConfigSerializer(XpSaveSerializer.class)
+class XpSave
 {
-	private int actions = 0;
-	private int actionsSinceReset = 0;
-	private boolean actionsHistoryInitialized = false;
-	private int[] actionExps = new int[10];
-	private int actionExpIndex = 0;
+	Map<Skill, XpSaveSingle> skills = new LinkedHashMap<>();
+	XpSaveSingle overall;
+}
+
+class XpSaveSingle
+{
+	@SerializedName("s")
+	long startXp;
+	@SerializedName("br")
+	int xpGainedBeforeReset;
+	@SerializedName("ar")
+	int xpGainedSinceReset;
+	@SerializedName("t")
+	long time; // ms
+}
+
+class XpSaveSerializer implements Serializer<XpSave>
+{
+	private final Gson gson;
+
+	@Inject
+	private XpSaveSerializer(Gson gson)
+	{
+		this.gson = gson;
+	}
+
+	@Override
+	public String serialize(XpSave value)
+	{
+		return gson.toJson(value);
+	}
+
+	@Override
+	public XpSave deserialize(String s)
+	{
+		return gson.fromJson(s, XpSave.class);
+	}
 }

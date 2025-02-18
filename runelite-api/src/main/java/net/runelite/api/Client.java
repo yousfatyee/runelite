@@ -917,7 +917,9 @@ public interface Client extends OAuthApi, GameEngine
 	 *
 	 * @param prayer the prayer
 	 * @return true if the prayer is active, false otherwise
+	 * @deprecated this method does not properly handle deadeye/eagle eye or mystic vigour/might
 	 */
+	@Deprecated
 	boolean isPrayerActive(Prayer prayer);
 
 	/**
@@ -1196,6 +1198,12 @@ public interface Client extends OAuthApi, GameEngine
 	 *               in the settings interface. if the sound effect volume is not muted, uses the set volume
 	 */
 	void playSoundEffect(int id, int volume);
+
+	/**
+	 * Get the currently playing midi requests.
+	 * @return
+	 */
+	List<MidiRequest> getActiveMidiRequests();
 
 	/**
 	 * Gets the clients graphic buffer provider.
@@ -2191,32 +2199,6 @@ public interface Client extends OAuthApi, GameEngine
 		return wv == null ? Collections.emptyList() : wv.npcs()
 			.stream()
 			.collect(Collectors.toCollection(ArrayList::new));
-	}
-
-	/**
-	 * Gets an array of all cached NPCs.
-	 *
-	 * @return cached NPCs
-	 * @see WorldView#npcs()
-	 */
-	@Deprecated
-	default NPC[] getCachedNPCs()
-	{
-		var wv = getTopLevelWorldView();
-		return wv == null ? new NPC[0] : wv.npcs().getSparse();
-	}
-
-	/**
-	 * Gets an array of all cached players.
-	 *
-	 * @return cached players
-	 * @see WorldView#players()
-	 */
-	@Deprecated
-	default Player[] getCachedPlayers()
-	{
-		var wv = getTopLevelWorldView();
-		return wv == null ? new Player[0] : wv.players().getSparse();
 	}
 
 	/**

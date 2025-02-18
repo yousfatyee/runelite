@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Tomas Slusny <slusnucky@gmail.com>
+ * Copyright (c) 2025, Adam <Adam@sigterm.info>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,17 +22,19 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.xptracker;
+package net.runelite.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@Getter
-@AllArgsConstructor
-public enum XpActionType
+public interface MidiRequest
 {
-	EXPERIENCE("Actions"),
-	ACTOR_HEALTH("Kills");
+	/**
+	 * True if this midi request is a jingle, otherwise it is a track.
+	 * @return
+	 */
+	boolean isJingle();
 
-	private final String label;
+	/**
+	 * Currently playing track/jingle id
+	 * @return
+	 */
+	int getArchiveId();
 }

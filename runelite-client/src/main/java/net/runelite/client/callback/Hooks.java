@@ -38,7 +38,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -49,6 +48,7 @@ import javax.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.MainBufferProvider;
+import net.runelite.api.Player;
 import net.runelite.api.Renderable;
 import net.runelite.api.Skill;
 import net.runelite.api.coords.WorldPoint;
@@ -57,8 +57,8 @@ import net.runelite.api.events.FakeXpDrop;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.PostClientTick;
 import net.runelite.api.events.ScriptCallbackEvent;
+import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.hooks.Callbacks;
-import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetItem;
 import net.runelite.api.worldmap.WorldMap;
@@ -114,6 +114,7 @@ public class Hooks implements Callbacks
 	@Nullable
 	private final RuntimeConfig runtimeConfig;
 	private final boolean developerMode;
+	private final RenderCallbackManager renderCallbackManager;
 
 	private Dimension lastStretchedDimensions;
 	private VolatileImage stretchedImage;
@@ -129,13 +130,21 @@ public class Hooks implements Callbacks
 	private boolean rateLimitedError;
 	private int errorBackoff = 1;
 
+	/**
+	 * use {@link RenderCallbackManager} instead
+	 */
 	@FunctionalInterface
-	public interface RenderableDrawListener
+	@Deprecated
+	public interface RenderableDrawListener extends RenderCallback
 	{
 		boolean draw(Renderable renderable, boolean ui);
-	}
 
-	private final List<RenderableDrawListener> renderableDrawListeners = new ArrayList<>();
+		@Override
+		default boolean addEntity(Renderable renderable, boolean ui)
+		{
+			return draw(renderable, ui);
+		}
+	}
 
 	/**
 	 * Get the Graphics2D for the MainBufferProvider image
@@ -176,7 +185,8 @@ public class Hooks implements Callbacks
 		ClientUI clientUi,
 		@Nullable TelemetryClient telemetryClient,
 		@Nullable RuntimeConfig runtimeConfig,
-		@Named("developerMode") final boolean developerMode
+		@Named("developerMode") final boolean developerMode,
+		RenderCallbackManager renderCallbackManager
 	)
 	{
 		this.client = client;
@@ -195,6 +205,7 @@ public class Hooks implements Callbacks
 		this.telemetryClient = telemetryClient;
 		this.runtimeConfig = runtimeConfig;
 		this.developerMode = developerMode;
+		this.renderCallbackManager = renderCallbackManager;
 		eventBus.register(this);
 	}
 
@@ -277,7 +288,7 @@ public class Hooks implements Callbacks
 	 */
 	private void checkWorldMap()
 	{
-		Widget widget = client.getWidget(ComponentID.WORLD_MAP_MAPVIEW);
+		Widget widget = client.getWidget(InterfaceID.Worldmap.MAP_CONTAINER);
 
 		if (widget != null)
 		{
@@ -576,14 +587,22 @@ public class Hooks implements Callbacks
 		eventBus.post(fakeXpDrop);
 	}
 
+	/**
+	 * use {@link RenderCallbackManager#register(RenderCallback)} instead
+	 */
+	@Deprecated
 	public void registerRenderableDrawListener(RenderableDrawListener listener)
 	{
-		renderableDrawListeners.add(listener);
+		renderCallbackManager.register(listener);
 	}
 
+	/**
+	 * use {@link RenderCallbackManager#unregister(RenderCallback)} instead
+	 */
+	@Deprecated
 	public void unregisterRenderableDrawListener(RenderableDrawListener listener)
 	{
-		renderableDrawListeners.remove(listener);
+		renderCallbackManager.unregister(listener);
 	}
 
 	@Override
@@ -591,17 +610,11 @@ public class Hooks implements Callbacks
 	{
 		try
 		{
-			for (RenderableDrawListener renderableDrawListener : renderableDrawListeners)
-			{
-				if (!renderableDrawListener.draw(renderable, drawingUi))
-				{
-					return false;
-				}
-			}
+			return renderCallbackManager.addEntity(renderable, drawingUi);
 		}
 		catch (Exception ex)
 		{
-			log.error("exception from renderable draw listener", ex);
+			log.error("exception from render callback", ex);
 		}
 		return true;
 	}
@@ -632,8 +645,12 @@ public class Hooks implements Callbacks
 			String coord = "unk";
 			if (client.getClientThread() == Thread.currentThread())
 			{
-				WorldPoint p = WorldPoint.fromLocalInstance(client, client.getLocalPlayer().getLocalLocation());
-				coord = String.format("%d_%d_%d_%d_%d", p.getPlane(), p.getX() / 64, p.getY() / 64, p.getX() & 63, p.getY() & 63);
+				Player player = client.getLocalPlayer();
+				if (player != null)
+				{
+					WorldPoint p = WorldPoint.fromLocalInstance(client, player.getLocalLocation());
+					coord = String.format("%d_%d_%d_%d_%d", p.getPlane(), p.getX() / 64, p.getY() / 64, p.getX() & 63, p.getY() & 63);
+				}
 			}
 
 			telemetryClient.submitError(

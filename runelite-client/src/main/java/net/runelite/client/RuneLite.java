@@ -41,6 +41,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -54,6 +55,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -163,6 +165,9 @@ public class RuneLite
 	@Inject
 	@Nullable
 	private TelemetryClient telemetryClient;
+
+	@Inject
+	private ScheduledExecutorService scheduledExecutorService;
 
 	public static void main(String[] args) throws Exception
 	{
@@ -367,8 +372,11 @@ public class RuneLite
 
 		if (telemetryClient != null)
 		{
-			telemetryClient.submitTelemetry();
-			telemetryClient.submitVmErrors(LOGS_DIR);
+			scheduledExecutorService.execute(() ->
+			{
+				telemetryClient.submitTelemetry();
+				telemetryClient.submitVmErrors(LOGS_DIR);
+			});
 		}
 
 		ReflectUtil.queueInjectorAnnotationCacheInvalidation(injector);
@@ -523,18 +531,24 @@ public class RuneLite
 
 	private void setupCompilerControl()
 	{
-		if (runtimeConfig == null || runtimeConfig.getCompilerControl() == null)
-		{
-			return;
-		}
-
 		try
 		{
-			var json = gson.toJson(runtimeConfig.getCompilerControl());
 			var file = Files.createTempFile("rl_compilercontrol", "");
 			try
 			{
-				Files.writeString(file, json, StandardCharsets.UTF_8);
+				if (runtimeConfig != null && runtimeConfig.getCompilerControl() != null)
+				{
+					var json = gson.toJson(runtimeConfig.getCompilerControl());
+					Files.writeString(file, json, StandardCharsets.UTF_8);
+				}
+				else
+				{
+					try (var in = RuneLite.class.getResourceAsStream("/compilercontrol.json"))
+					{
+						Files.copy(in, file, StandardCopyOption.REPLACE_EXISTING);
+					}
+				}
+
 				ManagementFactory.getPlatformMBeanServer().invoke(
 					new ObjectName("com.sun.management:type=DiagnosticCommand"),
 					"compilerDirectivesAdd",

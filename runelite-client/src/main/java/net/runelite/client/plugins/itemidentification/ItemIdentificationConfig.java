@@ -272,6 +272,17 @@ public interface ItemIdentificationConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "showButterflyMothJars",
+		name = "Butterfly & Moth jars",
+		description = "Show identification on Butterfly and Moth jars",
+		section = identificationSection
+	)
+	default boolean showButterflyMothJars()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 		keyName = "showImplingJars",
 		name = "Impling jars",
 		description = "Show identification on impling jars.",
@@ -322,6 +333,17 @@ public interface ItemIdentificationConfig extends Config
 		section = identificationSection
 	)
 	default boolean showEnchantedJewellery()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		keyName = "showWines",
+		name = "Wines",
+		description = "Show identification on jugs of wine.",
+		section = identificationSection
+	)
+	default boolean showWines()
 	{
 		return false;
 	}

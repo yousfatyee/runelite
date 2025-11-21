@@ -102,7 +102,7 @@ import net.runelite.api.Constants;
 import net.runelite.api.GameState;
 import net.runelite.api.Player;
 import net.runelite.api.events.GameStateChanged;
-import net.runelite.api.widgets.ComponentID;
+import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.RuneLiteProperties;
 import net.runelite.client.callback.ClientThread;
@@ -124,7 +124,6 @@ import net.runelite.client.util.HotkeyListener;
 import net.runelite.client.util.ImageUtil;
 import net.runelite.client.util.LinkBrowser;
 import net.runelite.client.util.OSType;
-import net.runelite.client.util.OSXUtil;
 import net.runelite.client.util.SwingUtil;
 import net.runelite.client.util.WinUtil;
 
@@ -332,8 +331,10 @@ public class ClientUI
 			// Create main window
 			frame = new ContainableFrame();
 
-			// Try to enable fullscreen on OSX
-			OSXUtil.tryEnableFullscreen(frame);
+			if (OSType.getOSType() == OSType.MacOS)
+			{
+				OSXFullScreenAdapter.install(frame);
+			}
 
 			frame.setTitle(title);
 			frame.setIconImages(Arrays.asList(ICON_128, ICON_16));
@@ -867,9 +868,9 @@ public class ClientUI
 		switch (OSType.getOSType())
 		{
 			case MacOS:
-				// On OSX Component::requestFocus has no visible effect, so we use our OSX-specific
-				// requestUserAttention()
-				OSXUtil.requestUserAttention();
+				// On macOS Component::requestFocus doesn't cause the taskbar icon to bounce, so use
+				// Taskbar.requestUserAttention
+				Taskbar.getTaskbar().requestUserAttention(true, true);
 				break;
 			default:
 				frame.requestFocus();
@@ -886,7 +887,7 @@ public class ClientUI
 		switch (OSType.getOSType())
 		{
 			case MacOS:
-				OSXUtil.requestForeground();
+				Desktop.getDesktop().requestForeground(true);
 				frame.setState(Frame.NORMAL);
 				break;
 			case Windows:
@@ -905,6 +906,12 @@ public class ClientUI
 	 */
 	public void flashTaskbar()
 	{
+		if (!Taskbar.isTaskbarSupported())
+		{
+			log.debug("Taskbar is not supported on this platform");
+			return;
+		}
+
 		Taskbar taskbar = Taskbar.getTaskbar();
 		if (taskbar.isSupported(Taskbar.Feature.USER_ATTENTION_WINDOW))
 		{
@@ -1013,7 +1020,7 @@ public class ClientUI
 		final int x = client.getRealDimensions().width - sidebarOpenIcon.getWidth() - 5;
 
 		// Offset sidebar button if resizable mode logout is visible
-		final Widget logoutButton = client.getWidget(ComponentID.RESIZABLE_VIEWPORT_BOTTOM_LINE_LOGOUT_BUTTON_OVERLAY);
+		final Widget logoutButton = client.getWidget(InterfaceID.ToplevelPreEoc.STONE10);
 		final int y = logoutButton != null && !logoutButton.isHidden() && logoutButton.getParent() != null
 			? logoutButton.getHeight() + logoutButton.getRelativeY()
 			: 5;
@@ -1392,9 +1399,9 @@ public class ClientUI
 					// frame.setVisible(true) calls CPlatformWindow::nativePushNSWindowToFront.
 					// However, this native method is not called with activateIgnoringOtherApps:YES,
 					// so any other active window will prevent our window from being brought to the front.
-					// To work around this, we use our macOS-specific requestForeground().
+					// To work around this, use eawt requestForeground() via java.desktop.
 					frame.setVisible(false);
-					OSXUtil.requestForeground();
+					Desktop.getDesktop().requestForeground(true);
 				}
 				frame.setVisible(true);
 				frame.setState(Frame.NORMAL); // Restore

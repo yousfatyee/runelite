@@ -29,11 +29,12 @@
 	<parent>
 		<groupId>net.runelite</groupId>
 		<artifactId>runelite-parent</artifactId>
-		<version>1.11.1-SNAPSHOT</version>
+		<version>1.12.6-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>runelite-api</artifactId>
 	<name>RuneLite API</name>
+	<url>https://static.runelite.net/runelite-api</url> <!-- for javadoc external urls -->
 
 	<dependencies>
 		<dependency>
@@ -131,6 +132,7 @@
 								<exclude>net/runelite/api/VarClientInt.class</exclude>
 								<exclude>net/runelite/api/VarClientStr.class</exclude>
 								<exclude>net/runelite/api/VarPlayer.class</exclude>
+								<exclude>net/runelite/api/gameval/*.class</exclude>
 							</excludes>
 						</configuration>
 					</execution>
@@ -142,6 +144,16 @@
 				<configuration>
 					<!-- include generated sources in javadoc -->
 					<sourcepath>${project.build.directory}/delombok;${project.build.directory}/generated-sources</sourcepath>
+					<excludePackageNames>net.runelite.api.gameval</excludePackageNames>
+					<sourceFileExcludes>
+						<sourceFileExclude>net/runelite/api/AnimationID.java</sourceFileExclude>
+						<sourceFileExclude>net/runelite/api/ItemID.java</sourceFileExclude>
+						<sourceFileExclude>net/runelite/api/NullItemID.java</sourceFileExclude>
+						<sourceFileExclude>net/runelite/api/ObjectID.java</sourceFileExclude>
+						<sourceFileExclude>net/runelite/api/NullObjectID.java</sourceFileExclude>
+						<sourceFileExclude>net/runelite/api/NpcID.java</sourceFileExclude>
+						<sourceFileExclude>net/runelite/api/NullNpcID.java</sourceFileExclude>
+					</sourceFileExcludes>
 				</configuration>
 			</plugin>
 			<plugin>

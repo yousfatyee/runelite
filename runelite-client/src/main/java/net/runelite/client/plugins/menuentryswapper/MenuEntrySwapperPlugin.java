@@ -60,10 +60,10 @@ import net.runelite.api.ParamID;
 import net.runelite.api.events.ClientTick;
 import net.runelite.api.events.MenuOpened;
 import net.runelite.api.events.PostMenuSort;
-import net.runelite.api.widgets.ComponentID;
-import net.runelite.api.widgets.InterfaceID;
+import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetConfig;
+import net.runelite.api.widgets.WidgetConfigNode;
 import net.runelite.api.widgets.WidgetUtil;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.chat.ChatMessageBuilder;
@@ -868,7 +868,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 			final MenuEntry entry = entries[idx];
 			Widget w = entry.getWidget();
 
-			if (w != null && WidgetUtil.componentToInterface(w.getId()) == InterfaceID.EQUIPMENT
+			if (w != null && WidgetUtil.componentToInterface(w.getId()) == InterfaceID.WORNITEMS
 				&& "Examine".equals(entry.getOption()) && entry.getIdentifier() == 10)
 			{
 				w = w.getChild(1);
@@ -1206,7 +1206,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 				}
 
 				final int interId = WidgetUtil.componentToInterface(w.getId());
-				if (interId == InterfaceID.INVENTORY || (interId == InterfaceID.EQUIPMENT && w.getId() != ComponentID.EQUIPMENT_DIZANAS_QUIVER_ITEM_CONTAINER))
+				if (interId == InterfaceID.INVENTORY || (interId == InterfaceID.WORNITEMS && w.getId() != InterfaceID.Wornitems.EXTRA_QUIVER_AMMO))
 				{
 					// inventory and worn items have their own swap systems
 					// other than dizanas quiver, since it's not actually an inventory slot but some static widgets
@@ -1348,15 +1348,15 @@ public class MenuEntrySwapperPlugin extends Plugin
 
 	private boolean testOpMask(Widget w, int op)
 	{
-		var n = client.getWidgetFlags().get((long) w.getId() << 32 | w.getIndex());
-		int mask = n != null ? n.getValue() : w.getClickMask();
+		WidgetConfigNode n = client.getWidgetConfig(w);
+		int mask = n != null ? n.getClickMask() : w.getClickMask();
 		return (mask >> op + 1 & 1) != 0;
 	}
 
 	private boolean isOpTarget(Widget w)
 	{
-		var n = client.getWidgetFlags().get((long) w.getId() << 32 | w.getIndex());
-		int mask = n != null ? n.getValue() : w.getClickMask();
+		WidgetConfigNode n = client.getWidgetConfig(w);
+		int mask = n != null ? n.getClickMask() : w.getClickMask();
 		return (mask & (WidgetConfig.USE_GROUND_ITEM | WidgetConfig.USE_NPC | WidgetConfig.USE_OBJECT | WidgetConfig.USE_PLAYER | WidgetConfig.USE_ITEM | WidgetConfig.USE_WIDGET)) != 0;
 	}
 
@@ -1387,15 +1387,15 @@ public class MenuEntrySwapperPlugin extends Plugin
 		}
 
 		final int widgetGroupId = WidgetUtil.componentToInterface(menuEntry.getParam1());
-		final boolean isDepositBoxPlayerInventory = widgetGroupId == InterfaceID.DEPOSIT_BOX;
-		final boolean isChambersOfXericStorageUnitPlayerInventory = widgetGroupId == InterfaceID.CHAMBERS_OF_XERIC_INVENTORY;
-		final boolean isGroupStoragePlayerInventory = widgetGroupId == InterfaceID.GROUP_STORAGE_INVENTORY;
+		final boolean isDepositBoxPlayerInventory = widgetGroupId == InterfaceID.BANK_DEPOSITBOX;
+		final boolean isChambersOfXericStorageUnitPlayerInventory = widgetGroupId == InterfaceID.RAIDS_STORAGE_SIDE;
+		final boolean isGroupStoragePlayerInventory = widgetGroupId == InterfaceID.SHARED_BANK_SIDE;
 		// Swap to shift-click deposit behavior
 		// Deposit- op 1 is the current withdraw amount 1/5/10/x for deposit box interface and chambers of xeric storage unit.
 		// Deposit- op 2 is the current withdraw amount 1/5/10/x for bank interface
 		if (shiftModifier() && config.bankDepositShiftClick() != ShiftDepositMode.OFF
 			&& type == MenuAction.CC_OP
-			&& menuEntry.getIdentifier() == (isDepositBoxPlayerInventory || isGroupStoragePlayerInventory || isChambersOfXericStorageUnitPlayerInventory ? 1 : 2)
+			&& menuEntry.getIdentifier() == (isGroupStoragePlayerInventory || isChambersOfXericStorageUnitPlayerInventory ? 1 : 2)
 			&& (menuEntry.getOption().startsWith("Deposit-") || menuEntry.getOption().startsWith("Store") || menuEntry.getOption().startsWith("Donate")))
 		{
 			ShiftDepositMode shiftDepositMode = config.bankDepositShiftClick();
@@ -1417,7 +1417,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 			ShiftWithdrawMode shiftWithdrawMode = config.bankWithdrawShiftClick();
 			final MenuAction action;
 			final int opId;
-			if (widgetGroupId == InterfaceID.CHAMBERS_OF_XERIC_STORAGE_UNIT_PRIVATE || widgetGroupId == InterfaceID.CHAMBERS_OF_XERIC_STORAGE_UNIT_SHARED)
+			if (widgetGroupId == InterfaceID.RAIDS_STORAGE_PRIVATE || widgetGroupId == InterfaceID.RAIDS_STORAGE_SHARED)
 			{
 				action = MenuAction.CC_OP;
 				opId = shiftWithdrawMode.getIdentifierChambersStorageUnit();
@@ -1509,7 +1509,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 		}
 
 		// Worn items swap
-		if (w != null && WidgetUtil.componentToInterface(w.getId()) == InterfaceID.EQUIPMENT)
+		if (w != null && WidgetUtil.componentToInterface(w.getId()) == InterfaceID.WORNITEMS)
 		{
 			Widget child = w.getChild(1);
 			if (child != null && child.getItemId() > -1)
@@ -1594,7 +1594,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 			&& w != null && (w.getIndex() == -1 || w.getItemId() != -1)
 			&& w.getActions() != null
 			&& WidgetUtil.componentToInterface(w.getId()) != InterfaceID.INVENTORY
-			&& (WidgetUtil.componentToInterface(w.getId()) != InterfaceID.EQUIPMENT || w.getId() == ComponentID.EQUIPMENT_DIZANAS_QUIVER_ITEM_CONTAINER))
+			&& (WidgetUtil.componentToInterface(w.getId()) != InterfaceID.WORNITEMS || w.getId() == InterfaceID.Wornitems.EXTRA_QUIVER_AMMO))
 		{
 			// fast check to avoid hitting config on components with single ops
 			if ((index > 0 && menuEntries[index - 1].getWidget() == w) ||
@@ -1814,7 +1814,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 
 	private List<Integer> findOptionIndex(Menu menu, String option)
 	{
-		if (cacheOptionMenu == null || cacheOptionIndexes.isEmpty())
+		if (cacheOptionMenu != menu || cacheOptionIndexes.isEmpty())
 		{
 			int idx = 0;
 			cacheOptionMenu = menu;

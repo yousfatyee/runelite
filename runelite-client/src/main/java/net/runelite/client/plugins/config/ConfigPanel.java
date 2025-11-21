@@ -229,7 +229,7 @@ class ConfigPanel extends PluginPanel
 		if (pluginConfig.getPlugin() != null)
 		{
 			pluginToggle.setConflicts(pluginConfig.getConflicts());
-			pluginToggle.setSelected(pluginManager.isPluginEnabled(pluginConfig.getPlugin()));
+			pluginToggle.setSelected(pluginManager.isPluginActive(pluginConfig.getPlugin()));
 			pluginToggle.addItemListener(i ->
 			{
 				if (pluginToggle.isSelected())
@@ -561,7 +561,7 @@ class ConfigPanel extends PluginPanel
 			public void mouseClicked(MouseEvent e)
 			{
 				RuneliteColorPicker colorPicker = colorPickerManager.create(
-					SwingUtilities.windowForComponent(ConfigPanel.this),
+					ConfigPanel.this,
 					colorPickerBtn.getColor(),
 					cid.getItem().name(),
 					alphaHidden);

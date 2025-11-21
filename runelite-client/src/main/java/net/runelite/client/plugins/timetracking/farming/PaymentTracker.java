@@ -37,7 +37,7 @@ import net.runelite.api.ScriptID;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.ScriptPreFired;
-import net.runelite.api.widgets.ComponentID;
+import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetModelType;
 import net.runelite.client.config.ConfigManager;
@@ -56,7 +56,8 @@ public class PaymentTracker
 		"That'll do nicely, sir. Leave it with me - I'll make sure<br>that patch grows for you.",
 		"That'll do nicely, madam. Leave it with me - I'll make<br>sure that patch grows for you.",
 		"That'll do nicely. Leave it with me - I'll make sure that<br>patch grows for you.",
-		"That'll do nicely, iknami. Leave it with me - I'll make<br>sure that patch grows for you."
+		"That'll do nicely, iknami. Leave it with me - I'll make<br>sure that patch grows for you.",
+		"Alright, leave it with me. I'll look after that nursery for<br>you."
 	);
 
 	private final Client client;
@@ -68,14 +69,14 @@ public class PaymentTracker
 	@Subscribe
 	public void onGameTick(GameTick gameTick)
 	{
-		Widget text = client.getWidget(ComponentID.DIALOG_NPC_TEXT);
+		Widget text = client.getWidget(InterfaceID.ChatLeft.TEXT);
 		if (text == null || !PAYMENT_TEXT.contains(text.getText()))
 		{
 			return;
 		}
 
-		Widget name = client.getWidget(ComponentID.DIALOG_NPC_NAME);
-		Widget head = client.getWidget(ComponentID.DIALOG_NPC_HEAD_MODEL);
+		Widget name = client.getWidget(InterfaceID.ChatLeft.NAME);
+		Widget head = client.getWidget(InterfaceID.ChatLeft.HEAD);
 		if (name == null || head == null || head.getModelType() != WidgetModelType.NPC_CHATHEAD)
 		{
 			return;
@@ -105,7 +106,7 @@ public class PaymentTracker
 		if (action == MenuAction.WIDGET_CONTINUE)
 		{
 			var w = opt.getWidget();
-			if (w != null && w.getId() == ComponentID.DIALOG_OPTION_OPTIONS && w.getIndex() > -1 && isPatchOption(w.getText()))
+			if (w != null && w.getId() == InterfaceID.Chatmenu.OPTIONS && w.getIndex() > -1 && isPatchOption(w.getText()))
 			{
 				lastSelectedOption = w.getIndex() - 1; // subid 0 is "Select an Option"
 				log.debug("Selected option via click: {}", lastSelectedOption);
@@ -131,7 +132,7 @@ public class PaymentTracker
 			int subId = intStack[1];
 
 			var w = client.getWidget(componentId).getChild(subId);
-			if (componentId == ComponentID.DIALOG_OPTION_OPTIONS && subId > -1 && isPatchOption(w.getText()))
+			if (componentId == InterfaceID.Chatmenu.OPTIONS && subId > -1 && isPatchOption(w.getText()))
 			{
 				lastSelectedOption = subId - 1; // subid 0 is "Select an Option"
 				log.debug("Selected option via keypress: {}", lastSelectedOption);

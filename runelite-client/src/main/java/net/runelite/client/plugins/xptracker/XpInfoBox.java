@@ -252,7 +252,7 @@ class XpInfoBox extends JPanel
 			{
 				if (e.getButton() == MouseEvent.BUTTON1)
 				{
-					toggleCompactView();
+					xpTrackerPlugin.setSkillCompactViewState(skill, toggleCompactView());
 				}
 			}
 		};
@@ -275,10 +275,11 @@ class XpInfoBox extends JPanel
 		SwingUtilities.invokeLater(() -> rebuildAsync(updated, paused, xpSnapshotSingle));
 	}
 
-	private void toggleCompactView()
+	private boolean toggleCompactView()
 	{
 		final boolean isCompact = !headerPanel.isVisible();
 		setCompactView(!isCompact);
+		return !isCompact;
 	}
 
 	private void setCompactView(final boolean compact)
@@ -364,6 +365,8 @@ class XpInfoBox extends JPanel
 			}
 
 			progressBar.setDimmed(skillPaused);
+
+			setCompactView(xpSnapshotSingle.isCompactView());
 		}
 		else if (!paused && skillPaused)
 		{
@@ -408,7 +411,7 @@ class XpInfoBox extends JPanel
 
 	private static boolean isCombatSkill(Skill skill)
 	{
-		return skill == Skill.AGILITY || skill == Skill.STRENGTH || skill == Skill.DEFENCE || skill == Skill.HITPOINTS || skill == Skill.RANGED;
+		return skill == Skill.ATTACK || skill == Skill.STRENGTH || skill == Skill.DEFENCE || skill == Skill.HITPOINTS || skill == Skill.RANGED;
 	}
 
 	static String htmlLabel(String key, int value)

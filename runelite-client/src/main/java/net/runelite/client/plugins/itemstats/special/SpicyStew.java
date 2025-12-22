@@ -70,7 +70,6 @@ public class SpicyStew implements Effect
 			changes.add(statChangeOf(Stats.THIEVING, yellowBoost, client));
 			changes.add(statChangeOf(Stats.SLAYER, yellowBoost, client));
 			changes.add(statChangeOf(Stats.HUNTER, yellowBoost, client));
-			changes.add(statChangeOf(Stats.SAILING, yellowBoost, client));
 		}
 
 		/*

@@ -42,5 +42,4 @@ public class LootReceived
 	private LootRecordType type;
 	private Collection<ItemStack> items;
 	private int amount;
-	private Object metadata;
 }

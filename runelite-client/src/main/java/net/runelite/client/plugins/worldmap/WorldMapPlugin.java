@@ -105,8 +105,6 @@ public class WorldMapPlugin extends Plugin
 	static final String CONFIG_KEY_DUNGEON_TOOLTIPS = "dungeonTooltips";
 	static final String CONFIG_KEY_HUNTER_AREA_TOOLTIPS = "hunterAreaTooltips";
 	static final String CONFIG_KEY_FISHING_SPOT_TOOLTIPS = "fishingSpotTooltips";
-	static final String CONFIG_KEY_MOORING_LOCATION_TOOLTIPS = "mooringLocationTooltips";
-	static final String CONFIG_KEY_MOORING_LOCATION_LEVEL_ICON = "mooringLocationShortcutIcon";
 
 	static
 	{
@@ -163,7 +161,6 @@ public class WorldMapPlugin extends Plugin
 
 	private int agilityLevel = 0;
 	private int woodcuttingLevel = 0;
-	private int sailingLevel = 0;
 
 	private final Map<Quest, WorldPoint> questStartLocations = new EnumMap<>(Quest.class);
 
@@ -178,7 +175,6 @@ public class WorldMapPlugin extends Plugin
 	{
 		agilityLevel = client.getRealSkillLevel(Skill.AGILITY);
 		woodcuttingLevel = client.getRealSkillLevel(Skill.WOODCUTTING);
-		sailingLevel = client.getRealSkillLevel(Skill.SAILING);
 		updateShownIcons();
 	}
 
@@ -189,7 +185,6 @@ public class WorldMapPlugin extends Plugin
 		questStartLocations.clear();
 		agilityLevel = 0;
 		woodcuttingLevel = 0;
-		sailingLevel = 0;
 	}
 
 	@Subscribe
@@ -225,17 +220,6 @@ public class WorldMapPlugin extends Plugin
 				{
 					woodcuttingLevel = newWoodcutLevel;
 					updateRareTreeIcons();
-				}
-				break;
-			}
-			case SAILING:
-			{
-				// Docking at locations is not boostable
-				int newSailingLevel = client.getRealSkillLevel(Skill.SAILING);
-				if (newSailingLevel != sailingLevel)
-				{
-					sailingLevel = newSailingLevel;
-					updateMooringPointIcons();
 				}
 				break;
 			}
@@ -377,30 +361,10 @@ public class WorldMapPlugin extends Plugin
 		}
 	}
 
-	private void updateMooringPointIcons()
-	{
-		worldMapPointManager.removeIf(isType(MapPoint.Type.MOORING_POINT));
-
-		if (config.mooringLocationTooltips() || config.mooringPointLevelIcon())
-		{
-			Arrays.stream(MooringLocation.values())
-				.map(l ->
-					MapPoint.builder()
-						.type(MapPoint.Type.MOORING_POINT)
-						.worldPoint(l.getLocation())
-						.image(sailingLevel > 0 && config.mooringPointLevelIcon() && l.getLevelReq() > sailingLevel ? NOPE_ICON : BLANK_ICON)
-						.tooltip(config.mooringLocationTooltips() ? l.getTooltip() : null)
-						.build()
-				)
-				.forEach(worldMapPointManager::add);
-		}
-	}
-
 	private void updateShownIcons()
 	{
 		updateAgilityIcons();
 		updateAgilityCourseIcons();
-		updateMooringPointIcons();
 		updateRareTreeIcons();
 		updateQuestStartPointIcons();
 

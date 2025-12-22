@@ -71723,7 +71723,6 @@ class ObjectID1
 	 */
 	public static final int TOA_ZEBAK_BUBBLES_BLUE = 58525;
 	public static final int BGSOUND_SAILING_OCEAN_WATER_LOOP_01 = 58526;
-	public static final int CASTLEARROWSLIT_OFFSET = 58527;
 	public static final int BGSOUND_SAILING_COOKING_LOOP_2 = 58528;
 	public static final int BGSOUND_SAILING_NORTHERN_OCEAN_WIND_LOOP = 58529;
 	public static final int BGSOUND_SAILING_CLOCK = 58530;
@@ -73139,11 +73138,6 @@ class ObjectID1
 	public static final int NICKELROCK1_EMPTY = 58924;
 
 	/**
-	 * Cabinet
-	 */
-	public static final int CABINET_OFFSET1 = 58925;
-
-	/**
 	 * Scoreboard
 	 */
 	public static final int SAILING_BT_SCOREBOARD_TEMPOR_TANTRUM = 58926;
@@ -73887,7 +73881,7 @@ class ObjectID1
 	public static final int SAILING_CHARTING_GENERIC_GLIDER_KHARAZI_STRAIT = 59308;
 
 	/**
-	 * &#60;col=ffff00&#62;Tiny briny shrimp&#60;/col&#62;
+	 * Tiny briny shrimp
 	 */
 	public static final int SAILING_CHARTING_GENERIC_SEA_MONKEYS = 59309;
 
@@ -74062,7 +74056,7 @@ class ObjectID1
 	public static final int SAILING_CHARTING_GENERIC_SAND_PIT = 59343;
 
 	/**
-	 * &#60;col=ffff00&#62;Suspicious eyes&#60;/col&#62;
+	 * Suspicious eyes
 	 */
 	public static final int SAILING_CHARTING_GENERIC_CRAB_EYES = 59344;
 
@@ -74157,12 +74151,12 @@ class ObjectID1
 	public static final int SAILING_CHARTING_GENERIC_ATOLL_DICTIONARY = 59362;
 
 	/**
-	 * &#60;col=ffff00&#62;Lurking Shadow&#60;/col&#62;
+	 * Lurking Shadow
 	 */
 	public static final int SAILING_CHARTING_GENERIC_SCARY_SHADOW = 59363;
 
 	/**
-	 * &#60;col=ffff00&#62;Horde of tiny sea creatures&#60;/col&#62;
+	 * Horde of tiny sea creatures
 	 */
 	public static final int SAILING_CHARTING_GENERIC_SEA_SAPPHIRES = 59364;
 
@@ -74604,11 +74598,6 @@ class ObjectID1
 	 * Sails
 	 */
 	public static final int SAILING_BOAT_SAILS_COLOSSAL_REGULAR = 59551;
-
-	/**
-	 * Crevice
-	 */
-	public static final int GRIMSTONE_CAVE_WALL_UPPER_CREVICE = 59552;
 
 	/**
 	 * Sails
@@ -77888,169 +77877,5 @@ class ObjectID1
 	 * Tentacle
 	 */
 	public static final int HAZARDOUS_WATER_PROFANE_GHOST = 60575;
-
-	/**
-	 * Table
-	 */
-	public static final int XMAS25_TABLE01_EMPTY01 = 60576;
-
-	/**
-	 * Table
-	 */
-	public static final int XMAS25_TABLE01_EMPTY01_OP1 = 60577;
-
-	/**
-	 * Table
-	 */
-	public static final int XMAS25_TABLE01_DRINK01 = 60578;
-
-	/**
-	 * Table
-	 */
-	public static final int XMAS25_TABLE01_FOOD01 = 60579;
-
-	/**
-	 * Table
-	 */
-	public static final int XMAS25_TABLE01_VEGETABLE01 = 60580;
-	public static final int XMAS25_TABLE_1 = 60581;
-	public static final int XMAS25_TABLE_2 = 60582;
-	public static final int XMAS25_TABLE_3 = 60583;
-	public static final int XMAS25_TABLE_4 = 60584;
-
-	/**
-	 * Bar
-	 */
-	public static final int XMAS25_BLUE_INN_DRINKS_BAR_MIDDLE = 60585;
-
-	/**
-	 * Bar
-	 */
-	public static final int XMAS25_BLUE_INN_DRINKS_BAR_MIDDLE_INTERACT = 60586;
-
-	/**
-	 * Bar
-	 */
-	public static final int XMAS25_BLUE_INN_DRINKS_BAR_MIDDLE2 = 60587;
-
-	/**
-	 * Bar
-	 */
-	public static final int XMAS25_BLUE_INN_DRINKS_BAR_MIDDLE2_INTERACT = 60588;
-
-	/**
-	 * Bar
-	 */
-	public static final int XMAS25_BLUE_INN_DRINKS_BAR_LEFT = 60589;
-
-	/**
-	 * Bar
-	 */
-	public static final int XMAS25_BLUE_INN_DRINKS_BAR_LEFT_INTERACT = 60590;
-
-	/**
-	 * Bar
-	 */
-	public static final int XMAS25_BLUE_INN_DRINKS_BAR_RIGHT = 60591;
-
-	/**
-	 * Bar
-	 */
-	public static final int XMAS25_BLUE_INN_DRINKS_BAR_RIGHT_INTERACT = 60592;
-
-	/**
-	 * Bar
-	 */
-	public static final int XMAS25_BLUE_INN_BAR_MIDDLE = 60593;
-
-	/**
-	 * Bar
-	 */
-	public static final int XMAS25_BLUE_INN_BAR_MIDDLE_INTERACT = 60594;
-
-	/**
-	 * Bar
-	 */
-	public static final int XMAS25_BLUE_INN_BAR_MIDDLE2 = 60595;
-
-	/**
-	 * Bar
-	 */
-	public static final int XMAS25_BLUE_INN_BAR_MIDDLE2_INTERACT = 60596;
-
-	/**
-	 * Bar
-	 */
-	public static final int XMAS25_BLUE_INN_BAR_MIDDLE3 = 60597;
-
-	/**
-	 * Bar
-	 */
-	public static final int XMAS25_BLUE_INN_BAR_MIDDLE3_INTERACT = 60598;
-
-	/**
-	 * Bar
-	 */
-	public static final int XMAS25_BLUE_INN_BAR_LEFT = 60599;
-
-	/**
-	 * Bar
-	 */
-	public static final int XMAS25_BLUE_INN_BAR_RIGHT = 60600;
-	public static final int XMAS25_BAR_DRINKS_MIDDLE = 60601;
-	public static final int XMAS25_BAR_DRINKS_MIDDLE2 = 60602;
-	public static final int XMAS25_BAR_DRINKS_LEFT = 60603;
-	public static final int XMAS25_BAR_DRINKS_RIGHT = 60604;
-	public static final int XMAS25_BAR_MIDDLE = 60605;
-	public static final int XMAS25_BAR_MIDDLE2 = 60606;
-	public static final int XMAS25_BAR_MIDDLE3 = 60607;
-
-	/**
-	 * Crate
-	 */
-	public static final int XMAS25_CRATE01_CARROT01 = 60608;
-
-	/**
-	 * Crate
-	 */
-	public static final int XMAS25_CRATE01_TOMATO01 = 60609;
-
-	/**
-	 * Crate
-	 */
-	public static final int XMAS25_CRATE01_VEGETABLE01 = 60610;
-
-	/**
-	 * Crate
-	 */
-	public static final int XMAS25_CRATE01_BROCCOLI01 = 60611;
-
-	/**
-	 * Crate
-	 */
-	public static final int XMAS25_CRATE01_FRUIT01 = 60612;
-
-	/**
-	 * Crate
-	 */
-	public static final int XMAS25_CRATE01_FISH01 = 60613;
-
-	/**
-	 * Crate
-	 */
-	public static final int XMAS25_CRATE01_MEAT01 = 60614;
-	public static final int XMAS22_DECORATION_HOLLYWREATH01_WALL01 = 60615;
-
-	/**
-	 * Snowball pile
-	 */
-	public static final int XMAS25_SNOWBALL_PILE = 60616;
-	public static final int AGILITY_ONEWAY_RIGHT_ICON = 60617;
-	public static final int AGILITY_ONEWAY_LEFT_ICON = 60618;
-
-	/**
-	 * Shellbane Gryphon display
-	 */
-	public static final int POH_DISPLAY_GRYPHON = 60619;
 /* This file is automatically generated. Do not edit. */
 }

@@ -51,6 +51,5 @@ public class Stats
 	public static final Stat RUNECRAFT = new SkillStat(Skill.RUNECRAFT);
 	public static final Stat HUNTER = new SkillStat(Skill.HUNTER);
 	public static final Stat CONSTRUCTION = new SkillStat(Skill.CONSTRUCTION);
-	public static final Stat SAILING = new SkillStat(Skill.SAILING);
 	public static final Stat RUN_ENERGY = new EnergyStat();
 }

@@ -37,8 +37,6 @@ public interface Model extends Mesh<Model>, Renderable
 
 	int[] getFaceColors3();
 
-	short[] getUnlitFaceColors();
-
 	int getSceneId();
 	void setSceneId(int sceneId);
 

@@ -48,9 +48,7 @@ class MapPoint extends WorldMapPoint
 		AGILITY_COURSE,
 		AGILITY_SHORTCUT,
 		QUEST,
-		RARE_TREE,
-		MOORING_POINT,
-		;
+		RARE_TREE
 	}
 
 	@Getter

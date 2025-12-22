@@ -78,6 +78,7 @@ import net.runelite.client.util.ColorUtil;
 public class GroundMarkerPlugin extends Plugin
 {
 	private static final String CONFIG_GROUP = "groundMarker";
+	private static final String WALK_HERE = "Walk here";
 	private static final String REGION_PREFIX = "region_";
 
 	@Getter(AccessLevel.PACKAGE)
@@ -256,9 +257,8 @@ public class GroundMarkerPlugin extends Plugin
 	@Subscribe
 	public void onMenuEntryAdded(MenuEntryAdded event)
 	{
-		MenuAction menuAction = event.getMenuEntry().getType();
 		final boolean hotKeyPressed = client.isKeyPressed(KeyCode.KC_SHIFT);
-		if (hotKeyPressed && (menuAction == MenuAction.WALK || menuAction == MenuAction.SET_HEADING))
+		if (hotKeyPressed && event.getOption().equals(WALK_HERE))
 		{
 			int worldId = event.getMenuEntry().getWorldViewId();
 			WorldView wv = client.getWorldView(worldId);

@@ -53,10 +53,4 @@ public interface DynamicObject extends Renderable
 	 * @return
 	 */
 	Model getModelZbuf();
-
-	/**
-	 * The object composition for the model returned by {@link #getModelZbuf()}
-	 * @return
-	 */
-	ObjectComposition getRecordedObjectComposition();
 }

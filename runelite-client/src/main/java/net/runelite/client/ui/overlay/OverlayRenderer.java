@@ -30,7 +30,6 @@ import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Point;
@@ -96,8 +95,6 @@ public class OverlayRenderer extends MouseAdapter
 	private final ClientUI clientUI;
 	private final EventBus eventBus;
 	private final ChatMessageManager chatMessageManager;
-
-	private Font font, tooltipFont, interfaceFont;
 
 	// Overlay movement variables
 	private final Point overlayOffset = new Point();
@@ -290,11 +287,6 @@ public class OverlayRenderer extends MouseAdapter
 		final Paint paint = graphics.getPaint();
 		final RenderingHints renderingHints = graphics.getRenderingHints();
 		final Color background = graphics.getBackground();
-
-		// Cache overlay fonts
-		this.font = runeLiteConfig.fontType().getFont();
-		this.tooltipFont = runeLiteConfig.tooltipFontType().getFont();
-		this.interfaceFont = runeLiteConfig.interfaceFontType().getFont();
 
 		final Rectangle clip = clipBounds(layer);
 		graphics.setClip(clip);
@@ -722,15 +714,15 @@ public class OverlayRenderer extends MouseAdapter
 		// Set font based on configuration
 		if (position == OverlayPosition.DYNAMIC || position == OverlayPosition.DETACHED)
 		{
-			graphics.setFont(font);
+			graphics.setFont(runeLiteConfig.fontType().getFont());
 		}
 		else if (position == OverlayPosition.TOOLTIP)
 		{
-			graphics.setFont(tooltipFont);
+			graphics.setFont(runeLiteConfig.tooltipFontType().getFont());
 		}
 		else
 		{
-			graphics.setFont(interfaceFont);
+			graphics.setFont(runeLiteConfig.interfaceFontType().getFont());
 		}
 
 		graphics.translate(point.x, point.y);

@@ -216,6 +216,7 @@ public class IdleNotifierPlugin extends Plugin
 			case AnimationID.HUMAN_FIRECOOKING:
 			case AnimationID.HUMAN_COOKING:
 			case AnimationID.HUMAN_MAKE_WINE:
+			case AnimationID.HUMAN_CUT_FOOD:
 			/* Crafting(Gem Cutting, Glassblowing, Spinning, Weaving, Battlestaves, Pottery) */
 			case AnimationID.HUMAN_OPALCUTTING:
 			case AnimationID.HUMAN_JADECUTTING:
@@ -412,6 +413,14 @@ public class IdleNotifierPlugin extends Plugin
 			case AnimationID.PICKING_HIGH:
 			case AnimationID.FARMING_PICK_MUSHROOM:
 			case AnimationID.HUMAN_DIG:
+			/* Sailing */
+			case AnimationID.SAILING_HUMAN_SALVAGE_HOOK_KANDARIN_1X3_IDLE01:
+			case AnimationID.SAILING_HUMAN_SALVAGE_HOOK_KANDARIN_2X5_IDLE01:
+			case AnimationID.SAILING_HUMAN_SALVAGE_HOOK_KANDARIN_3X8_IDLE01:
+			case AnimationID.SAILING_HUMAN_SALVAGE_HOOK_KANDARIN_1X3_INTERACT01: // Sort-salvage
+			case AnimationID.SAILING_HUMAN_SALVAGE_HOOK_KANDARIN_1X3_RESET01:
+			case AnimationID.SAILING_HUMAN_SALVAGE_HOOK_KANDARIN_2X5_RESET01:
+			case AnimationID.SAILING_HUMAN_SALVAGE_HOOK_KANDARIN_3X8_RESET01:
 			/* Misc */
 			case AnimationID.PISC_REPAIR_HAMMER:
 			case AnimationID.POH_CREATE_MAGIC_TABLET:

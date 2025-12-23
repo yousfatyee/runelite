@@ -37,3 +37,8 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+/runelite-client/target
+/runelite-api/target
+/runelite-jshell/target
+/cache/target
+/runelite-maven-plugin/target

@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
@@ -97,24 +98,30 @@ public class HttpServerPlugin extends Plugin
 	@Override
 	protected void startUp() throws Exception
 	{
-		//MAX_DISTANCE = config.reachedDistance();
-		skillList = Skill.values();
-		xpTracker = new XpTracker(this);
-		server = HttpServer.create(new InetSocketAddress(config.port()), 0);
-		server.createContext("/stats", this::handleStats);
-		server.createContext("/inv", handlerForInv(InventoryID.INVENTORY));
-		server.createContext("/equip", handlerForInv(InventoryID.EQUIPMENT));
-		server.createContext("/events", this::handleEvents);
-		server.createContext("/wintertodt",this::handleWintertodt);
-		server.setExecutor(Executors.newCachedThreadPool());
-		startTime = System.currentTimeMillis();
-		xp_gained_skills = new int[Skill.values().length];
-		int skill_count = 0;
-		server.start();
-		for (Skill skill : Skill.values())
-		{
-			xp_gained_skills[skill_count] = 0;
-			skill_count++;
+		try {
+			//MAX_DISTANCE = config.reachedDistance();
+			skillList = Skill.values();
+			xpTracker = new XpTracker(this);
+			int port = config.port();
+			server = HttpServer.create(new InetSocketAddress(port), 0);
+			server.createContext("/stats", this::handleStats);
+			server.createContext("/inv", handlerForInv(InventoryID.INVENTORY));
+			server.createContext("/equip", handlerForInv(InventoryID.EQUIPMENT));
+			server.createContext("/events", this::handleEvents);
+			server.createContext("/wintertodt",this::handleWintertodt);
+			server.setExecutor(Executors.newCachedThreadPool());
+			startTime = System.currentTimeMillis();
+			xp_gained_skills = new int[Skill.values().length];
+			int skill_count = 0;
+			server.start();
+			for (Skill skill : Skill.values())
+			{
+				xp_gained_skills[skill_count] = 0;
+				skill_count++;
+			}
+		} catch (Exception e) {
+			log.error("Failed to start HTTP server", e);
+			throw e;
 		}
 	}
 	@Subscribe
@@ -127,7 +134,9 @@ public class HttpServerPlugin extends Plugin
 	@Override
 	protected void shutDown() throws Exception
 	{
-		server.stop(1);
+		if (server != null) {
+			server.stop(1);
+		}
 	}
 	public Client getClient() {
 		return client;
@@ -143,59 +152,72 @@ public class HttpServerPlugin extends Plugin
 
 	public void handleWintertodt(HttpExchange exchange) throws IOException
 	{
-		if (!isInWintertodtRegion())
-		{
-			if (isInWintertodt)
+		try {
+			if (!isInWintertodtRegion())
 			{
-				log.debug("Left Wintertodt!");
+				if (isInWintertodt)
+				{
+					log.debug("Left Wintertodt!");
+					reset();
+					isInWintertodt = false;
+				}
+				exchange.getResponseHeaders().set("Content-Type", "application/json");
+				exchange.sendResponseHeaders(204, 0);
+				exchange.close();
+				return;
+			}
+
+			if(isInWintertodt)
+			{
+				healthWidget = client.getWidget(WINTERTODT_WIDGET_GROUP_ID, WINTERTODT_HEALTH_WIDGET_ID);
+				warmthWidget = client.getWidget(WINTERTODT_WIDGET_GROUP_ID, WINTERTODT_WORTH_METER);
+
+				if (healthWidget != null) {
+					// widget.getText() returns "Wintertodt's Energy: 100%" so we need to get an int
+					String text = healthWidget.getText();
+					if (text.contains("return")){
+						wintertodtActive = false;
+					}else{
+						wintertodtActive = true;
+					}
+					if(text != null && !text.isEmpty() && text.replaceAll("[^0-9]", "") != "")
+					{
+						wintertodtHealth = Integer.parseInt(text.replaceAll("[^0-9]", ""));
+					}
+				}
+
+				if(warmthWidget != null){
+					String text = warmthWidget.getText();
+					if(text != null && !text.isEmpty() && text.replaceAll("[^0-9]", "") != "")
+					{
+						wintertodtWarmth = Integer.parseInt(text.replaceAll("[^0-9]", ""));
+					}
+				}
+
+			}else
+			{
 				reset();
-				isInWintertodt = false;
-			}
-			return;
-		}
-
-		if(isInWintertodt)
-		{
-			healthWidget = client.getWidget(WINTERTODT_WIDGET_GROUP_ID, WINTERTODT_HEALTH_WIDGET_ID);
-			warmthWidget = client.getWidget(WINTERTODT_WIDGET_GROUP_ID, WINTERTODT_WORTH_METER);
-
-			if (healthWidget != null) {
-				// widget.getText() returns "Wintertodt's Energy: 100%" so we need to get an int
-				String text = healthWidget.getText();
-				if (text.contains("return")){
-					wintertodtActive = false;
-				}else{
-					wintertodtActive = true;
-				}
-				if(text != null && !text.isEmpty() && text.replaceAll("[^0-9]", "") != "")
-				{
-					wintertodtHealth = Integer.parseInt(text.replaceAll("[^0-9]", ""));
-				}
+				isInWintertodt = true;
 			}
 
-			if(warmthWidget != null){
-				String text = warmthWidget.getText();
-				if(text != null && !text.isEmpty() && text.replaceAll("[^0-9]", "") != "")
-				{
-					wintertodtWarmth = Integer.parseInt(text.replaceAll("[^0-9]", ""));
-				}
+			JsonObject object = new JsonObject();
+			object.addProperty("warmth", wintertodtWarmth);
+			object.addProperty("hp", wintertodtHealth);
+			object.addProperty("active", wintertodtActive);
+			exchange.getResponseHeaders().set("Content-Type", "application/json");
+			exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+			exchange.sendResponseHeaders(200, 0);
+			try (OutputStreamWriter out = new OutputStreamWriter(exchange.getResponseBody()))
+			{
+				RuneLiteAPI.GSON.toJson(object, out);
+				out.flush();
 			}
-
-		}else
-		{
-			reset();
-			log.debug("Entered Wintertodt!");
-			isInWintertodt = true;
-		}
-
-		JsonObject object = new JsonObject();
-		object.addProperty("warmth", wintertodtWarmth);
-		object.addProperty("hp", wintertodtHealth);
-		object.addProperty("active", wintertodtActive);
-		exchange.sendResponseHeaders(200, 0);
-		try (OutputStreamWriter out = new OutputStreamWriter(exchange.getResponseBody()))
-		{
-			RuneLiteAPI.GSON.toJson(object, out);
+			exchange.close();
+		} catch (Exception e) {
+			log.error("Error handling /wintertodt request", e);
+			exchange.getResponseHeaders().set("Content-Type", "application/json");
+			exchange.sendResponseHeaders(500, 0);
+			exchange.close();
 		}
 	}
 	@Subscribe
@@ -216,155 +238,253 @@ public class HttpServerPlugin extends Plugin
 	}
 
 	public int handleTracker(Skill skill){
-		int startingSkillXp = xpTracker.getXpData(skill, 0);
-		int endingSkillXp = xpTracker.getXpData(skill, tickCount);
-		int xpGained = endingSkillXp - startingSkillXp;
-		return xpGained;
+		try {
+			int startingSkillXp = xpTracker.getXpData(skill, 0);
+			int endingSkillXp = xpTracker.getXpData(skill, tickCount);
+			int xpGained = endingSkillXp - startingSkillXp;
+			return xpGained;
+		} catch (Exception e) {
+			log.warn("Error calculating XP gain for skill {} at tick {}", skill, tickCount, e);
+			return 0;
+		}
 	}
 
 	public void handleStats(HttpExchange exchange) throws IOException
 	{
-		Player player = client.getLocalPlayer();
-		JsonArray skills = new JsonArray();
-		JsonObject headers = new JsonObject();
-		headers.addProperty("username", client.getUsername());
-		headers.addProperty("player name", player.getName());
-		int skill_count = 0;
-		skills.add(headers);
-		for (Skill skill : Skill.values())
-		{
-			JsonObject object = new JsonObject();
-			object.addProperty("stat", skill.getName());
-			object.addProperty("level", client.getRealSkillLevel(skill));
-			object.addProperty("boostedLevel", client.getBoostedSkillLevel(skill));
-			object.addProperty("xp", client.getSkillExperience(skill));
-			object.addProperty("xp gained", String.valueOf(xp_gained_skills[skill_count]));
-			skills.add(object);
-			skill_count++;
-		}
+		try {
+			Player player = client.getLocalPlayer();
+			if (player == null) {
+				exchange.getResponseHeaders().set("Content-Type", "application/json");
+				exchange.sendResponseHeaders(503, 0);
+				exchange.close();
+				return;
+			}
 
-		exchange.sendResponseHeaders(200, 0);
-		try (OutputStreamWriter out = new OutputStreamWriter(exchange.getResponseBody()))
-		{
-			RuneLiteAPI.GSON.toJson(skills, out);
+			JsonArray skills = new JsonArray();
+			JsonObject headers = new JsonObject();
+			headers.addProperty("username", client.getUsername());
+			headers.addProperty("player name", player.getName());
+			int skill_count = 0;
+			skills.add(headers);
+			for (Skill skill : Skill.values())
+			{
+				JsonObject object = new JsonObject();
+				object.addProperty("stat", skill.getName());
+				object.addProperty("level", client.getRealSkillLevel(skill));
+				object.addProperty("boostedLevel", client.getBoostedSkillLevel(skill));
+				object.addProperty("xp", client.getSkillExperience(skill));
+				object.addProperty("xp gained", String.valueOf(xp_gained_skills[skill_count]));
+				skills.add(object);
+				skill_count++;
+			}
+
+			exchange.getResponseHeaders().set("Content-Type", "application/json");
+			exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+			exchange.sendResponseHeaders(200, 0);
+			try (OutputStreamWriter out = new OutputStreamWriter(exchange.getResponseBody()))
+			{
+				RuneLiteAPI.GSON.toJson(skills, out);
+				out.flush();
+			}
+			exchange.close();
+		} catch (Exception e) {
+			log.error("Error handling /stats request", e);
+			exchange.getResponseHeaders().set("Content-Type", "application/json");
+			exchange.sendResponseHeaders(500, 0);
+			exchange.close();
 		}
 	}
 
 	public void handleEvents(HttpExchange exchange) throws IOException
 	{
-		MAX_DISTANCE = config.reachedDistance();
-		Player player = client.getLocalPlayer();
-		Actor npc = player.getInteracting();
-		String npcName;
-		int npcHealth;
-		int npcHealth2;
-		int health;
-		int minHealth = 0;
-		int maxHealth = 0;
-		if (npc != null)
-		{
-			npcName = npc.getName();
-			npcHealth = npc.getHealthScale();
-			npcHealth2 = npc.getHealthRatio();
-			health = 0;
-			if (npcHealth2 > 0)
-			{
-				minHealth = 1;
-				if (npcHealth > 1)
+		try {
+			MAX_DISTANCE = config.reachedDistance();
+			
+			// All client calls must be on client thread
+			JsonObject object = invokeAndWait(() -> {
+				Player player = client.getLocalPlayer();
+				if (player == null) {
+					return null;
+				}
+				
+				Actor npc = player.getInteracting();
+				String npcName;
+				int npcHealth;
+				int npcHealth2;
+				int health;
+				int minHealth = 0;
+				int maxHealth = 0;
+				if (npc != null)
 				{
-					if (npcHealth2 > 1)
+					npcName = npc.getName();
+					npcHealth = npc.getHealthScale();
+					npcHealth2 = npc.getHealthRatio();
+					health = 0;
+					if (npcHealth2 > 0)
 					{
-						// This doesn't apply if healthRatio = 1, because of the special case in the server calculation that
-						// health = 0 forces healthRatio = 0 instead of the expected healthRatio = 1
-						minHealth = (npcHealth * (npcHealth2 - 1) + npcHealth - 2) / (npcHealth- 1);
-					}
-					maxHealth = (npcHealth * npcHealth2 - 1) / (npcHealth- 1);
-					if (maxHealth > npcHealth)
-					{
-						maxHealth = npcHealth;
+						minHealth = 1;
+						if (npcHealth > 1)
+						{
+							if (npcHealth2 > 1)
+							{
+								// This doesn't apply if healthRatio = 1, because of the special case in the server calculation that
+								// health = 0 forces healthRatio = 0 instead of the expected healthRatio = 1
+								minHealth = (npcHealth * (npcHealth2 - 1) + npcHealth - 2) / (npcHealth- 1);
+							}
+							maxHealth = (npcHealth * npcHealth2 - 1) / (npcHealth- 1);
+							if (maxHealth > npcHealth)
+							{
+								maxHealth = npcHealth;
+							}
+						}
+						else
+						{
+							// If healthScale is 1, healthRatio will always be 1 unless health = 0
+							// so we know nothing about the upper limit except that it can't be higher than maxHealth
+							maxHealth = npcHealth;
+						}
+						// Take the average of min and max possible healths
+						health = (minHealth + maxHealth + 1) / 2;
 					}
 				}
 				else
 				{
-					// If healthScale is 1, healthRatio will always be 1 unless health = 0
-					// so we know nothing about the upper limit except that it can't be higher than maxHealth
-					maxHealth = npcHealth;
+					npcName = "null";
+					npcHealth = 0;
+					npcHealth2 = 0;
+					health = 0;
 				}
-				// Take the average of min and max possible healths
-				health = (minHealth + maxHealth + 1) / 2;
-			}
-		}
-		else
-		{
-			npcName = "null";
-			npcHealth = 0;
-			npcHealth2 = 0;
-			health = 0;
-		}
-		final List<Integer> idlePoses = Arrays.asList(808, 813, 3418, 10075);
+				final List<Integer> idlePoses = Arrays.asList(808, 813, 3418, 10075);
 
-		JsonObject object = new JsonObject();
-		JsonObject camera = new JsonObject();
-		JsonObject worldPoint = new JsonObject();
-		JsonObject mouse = new JsonObject();
-		object.addProperty("animation", player.getAnimation());
-		object.addProperty("animation pose", player.getPoseAnimation());
-		boolean isIdle = player.getAnimation() == -1 && idlePoses.contains(player.getPoseAnimation());
-		object.addProperty("Is idle", isIdle);
-		object.addProperty("latest msg", msg);
-		object.addProperty("run energy", client.getEnergy());
-		int specialAttack = client.getVarpValue(300) / 10;
-		object.addProperty("special attack", specialAttack);
-		object.addProperty("game tick", client.getGameCycle());
-		object.addProperty("health", client.getBoostedSkillLevel(Skill.HITPOINTS) + "/" + client.getRealSkillLevel(Skill.HITPOINTS));
-		object.addProperty("interacting code", String.valueOf(player.getInteracting()));
-		object.addProperty("npc name", npcName);
-		object.addProperty("npc health ", minHealth);
-		object.addProperty("MAX_DISTANCE", MAX_DISTANCE);
-		mouse.addProperty("x", client.getMouseCanvasPosition().getX());
-		mouse.addProperty("y", client.getMouseCanvasPosition().getY());
-		worldPoint.addProperty("x", player.getWorldLocation().getX());
-		worldPoint.addProperty("y", player.getWorldLocation().getY());
-		worldPoint.addProperty("plane", player.getWorldLocation().getPlane());
-		worldPoint.addProperty("regionID", player.getWorldLocation().getRegionID());
-		worldPoint.addProperty("regionX", player.getWorldLocation().getRegionX());
-		worldPoint.addProperty("regionY", player.getWorldLocation().getRegionY());
-		camera.addProperty("yaw", client.getCameraYaw());
-		camera.addProperty("pitch", client.getCameraPitch());
-		camera.addProperty("x", client.getCameraX());
-		camera.addProperty("y", client.getCameraY());
-		camera.addProperty("z", client.getCameraZ());
-		object.add("worldPoint", worldPoint);
-		object.add("camera", camera);
-		object.add("mouse", mouse);
-		exchange.sendResponseHeaders(200, 0);
-		try (OutputStreamWriter out = new OutputStreamWriter(exchange.getResponseBody()))
-		{
-			RuneLiteAPI.GSON.toJson(object, out);
+				JsonObject obj = new JsonObject();
+				JsonObject camera = new JsonObject();
+				JsonObject worldPoint = new JsonObject();
+				JsonObject mouse = new JsonObject();
+				obj.addProperty("animation", player.getAnimation());
+				obj.addProperty("animation pose", player.getPoseAnimation());
+				boolean isIdle = player.getAnimation() == -1 && idlePoses.contains(player.getPoseAnimation());
+				obj.addProperty("Is idle", isIdle);
+				obj.addProperty("latest msg", msg != null ? msg : "");
+				obj.addProperty("run energy", client.getEnergy());
+				int specialAttack = client.getVarpValue(300) / 10;
+				obj.addProperty("special attack", specialAttack);
+				obj.addProperty("game tick", client.getGameCycle());
+				obj.addProperty("health", client.getBoostedSkillLevel(Skill.HITPOINTS) + "/" + client.getRealSkillLevel(Skill.HITPOINTS));
+				obj.addProperty("interacting code", String.valueOf(player.getInteracting()));
+				obj.addProperty("npc name", npcName);
+				obj.addProperty("npc health ", minHealth);
+				obj.addProperty("MAX_DISTANCE", MAX_DISTANCE);
+				mouse.addProperty("x", client.getMouseCanvasPosition().getX());
+				mouse.addProperty("y", client.getMouseCanvasPosition().getY());
+				
+				// Safely get world location - might be null if player isn't fully loaded
+				try {
+					WorldPoint worldLoc = player.getWorldLocation();
+					if (worldLoc != null) {
+						worldPoint.addProperty("x", worldLoc.getX());
+						worldPoint.addProperty("y", worldLoc.getY());
+						worldPoint.addProperty("plane", worldLoc.getPlane());
+						worldPoint.addProperty("regionID", worldLoc.getRegionID());
+						worldPoint.addProperty("regionX", worldLoc.getRegionX());
+						worldPoint.addProperty("regionY", worldLoc.getRegionY());
+					} else {
+						worldPoint.addProperty("x", 0);
+						worldPoint.addProperty("y", 0);
+						worldPoint.addProperty("plane", 0);
+						worldPoint.addProperty("regionID", 0);
+						worldPoint.addProperty("regionX", 0);
+						worldPoint.addProperty("regionY", 0);
+					}
+				} catch (Exception e) {
+					worldPoint.addProperty("x", 0);
+					worldPoint.addProperty("y", 0);
+					worldPoint.addProperty("plane", 0);
+					worldPoint.addProperty("regionID", 0);
+					worldPoint.addProperty("regionX", 0);
+					worldPoint.addProperty("regionY", 0);
+				}
+				
+				camera.addProperty("yaw", client.getCameraYaw());
+				camera.addProperty("pitch", client.getCameraPitch());
+				camera.addProperty("x", client.getCameraX());
+				camera.addProperty("y", client.getCameraY());
+				camera.addProperty("z", client.getCameraZ());
+				obj.add("worldPoint", worldPoint);
+				obj.add("camera", camera);
+				obj.add("mouse", mouse);
+				return obj;
+			});
+			
+			if (object == null) {
+				exchange.getResponseHeaders().set("Content-Type", "application/json");
+				exchange.sendResponseHeaders(503, 0);
+				exchange.close();
+				return;
+			}
+			
+			exchange.getResponseHeaders().set("Content-Type", "application/json");
+			exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+			exchange.sendResponseHeaders(200, 0);
+			try (OutputStreamWriter out = new OutputStreamWriter(exchange.getResponseBody()))
+			{
+				RuneLiteAPI.GSON.toJson(object, out);
+				out.flush();
+			}
+			exchange.close();
+		} catch (Exception e) {
+			log.error("Error handling /events request", e);
+			try {
+				exchange.getResponseHeaders().set("Content-Type", "application/json");
+				exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+				JsonObject error = new JsonObject();
+				error.addProperty("error", e.getMessage());
+				error.addProperty("type", e.getClass().getSimpleName());
+				exchange.sendResponseHeaders(500, 0);
+				try (OutputStreamWriter out = new OutputStreamWriter(exchange.getResponseBody())) {
+					RuneLiteAPI.GSON.toJson(error, out);
+					out.flush();
+				}
+				exchange.close();
+			} catch (Exception ex) {
+				log.error("Error sending error response", ex);
+			}
 		}
 	}
 	private HttpHandler handlerForInv(InventoryID inventoryID)
 	{
 		return exchange -> {
-			Item[] items = invokeAndWait(() -> {
-				ItemContainer itemContainer = client.getItemContainer(inventoryID);
-				if (itemContainer != null)
+			try {
+				Item[] items = invokeAndWait(() -> {
+					ItemContainer itemContainer = client.getItemContainer(inventoryID);
+					if (itemContainer != null)
+					{
+						return itemContainer.getItems();
+					}
+					return null;
+				});
+
+				if (items == null)
 				{
-					return itemContainer.getItems();
+					exchange.getResponseHeaders().set("Content-Type", "application/json");
+					exchange.sendResponseHeaders(204, 0);
+					exchange.close();
+					return;
 				}
-				return null;
-			});
 
-			if (items == null)
-			{
-				exchange.sendResponseHeaders(204, 0);
-				return;
-			}
-
+			exchange.getResponseHeaders().set("Content-Type", "application/json");
+			exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
 			exchange.sendResponseHeaders(200, 0);
 			try (OutputStreamWriter out = new OutputStreamWriter(exchange.getResponseBody()))
 			{
 				RuneLiteAPI.GSON.toJson(items, out);
+				out.flush();
+			}
+			exchange.close();
+			} catch (Exception e) {
+				log.error("Error handling inventory request", e);
+				exchange.getResponseHeaders().set("Content-Type", "application/json");
+				exchange.sendResponseHeaders(500, 0);
+				exchange.close();
 			}
 		};
 	}

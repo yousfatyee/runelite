@@ -33,8 +33,17 @@ public class XpTracker {
 
 	public int getXpData(Skill skillToGet, int tickNum) {
 		ArrayList<Integer> xpListToGet = skillXpMap.get(skillToGet);
-		int xpValueAtTickNum = xpListToGet.get(tickNum);
-		return xpValueAtTickNum;
+		if (xpListToGet == null || xpListToGet.isEmpty()) {
+			return 0;
+		}
+		// If tickNum is out of bounds, return the most recent value
+		if (tickNum >= xpListToGet.size()) {
+			return xpListToGet.get(xpListToGet.size() - 1);
+		}
+		if (tickNum < 0) {
+			return xpListToGet.get(0);
+		}
+		return xpListToGet.get(tickNum);
 	}
 
 	public int getMostRecentXp(Skill skillToGet) {

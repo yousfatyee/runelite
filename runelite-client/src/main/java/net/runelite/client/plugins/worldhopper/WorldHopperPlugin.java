@@ -30,6 +30,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provides;
 import java.awt.image.BufferedImage;
+import java.io.FileDescriptor;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -81,6 +82,8 @@ import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.worldhopper.ping.Ping;
+import net.runelite.client.plugins.worldhopper.ping.RetransmitCalculator;
+import net.runelite.client.plugins.worldhopper.ping.TCP_INFO_v0;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.ui.overlay.OverlayManager;
@@ -162,6 +165,8 @@ public class WorldHopperPlugin extends Plugin
 	private int currentPing;
 
 	private final Map<Integer, Integer> storedPings = new HashMap<>();
+
+	final RetransmitCalculator retransmitCalculator = new RetransmitCalculator();
 
 	private final HotkeyListener previousKeyListener = new HotkeyListener(() -> config.previousKey())
 	{
@@ -445,13 +450,17 @@ public class WorldHopperPlugin extends Plugin
 	@Subscribe
 	public void onGameStateChanged(GameStateChanged gameStateChanged)
 	{
-		// If the player has disabled the side bar plugin panel, do not update the UI
-		if (config.showSidebar() && gameStateChanged.getGameState() == GameState.LOGGED_IN)
+		if (gameStateChanged.getGameState() == GameState.LOGGED_IN)
 		{
 			if (lastWorld != client.getWorld())
 			{
 				int newWorld = client.getWorld();
-				panel.switchCurrentHighlight(newWorld, lastWorld);
+				// If the player has disabled the side bar plugin panel, do not update the UI
+				if (config.showSidebar())
+				{
+					panel.switchCurrentHighlight(newWorld, lastWorld);
+				}
+				currentPing = -1;
 				lastWorld = newWorld;
 			}
 		}
@@ -505,8 +514,14 @@ public class WorldHopperPlugin extends Plugin
 		{
 			clientThread.invokeLater(() ->
 			{
-				var locationEnum = client.getGameState().getState() >= GameState.LOGIN_SCREEN.getState() ? client.getEnum(EnumID.WORLD_LOCATIONS) : null;
+				if (client.getGameState().getState() < GameState.LOGIN_SCREEN.getState())
+				{
+					return false;
+				}
+
+				var locationEnum = client.getEnum(EnumID.WORLD_LOCATIONS);
 				SwingUtilities.invokeLater(() -> panel.populate(worldResult.getWorlds(), locationEnum));
+				return true;
 			});
 		}
 	}
@@ -821,7 +836,7 @@ public class WorldHopperPlugin extends Plugin
 
 		for (World world : worldResult.getWorlds())
 		{
-			int ping = ping(world);
+			int ping = ping(world, false);
 			SwingUtilities.invokeLater(() -> panel.updatePing(world.getId(), ping));
 		}
 
@@ -862,7 +877,7 @@ public class WorldHopperPlugin extends Plugin
 			return;
 		}
 
-		int ping = ping(world);
+		int ping = ping(world, false);
 		log.trace("Ping for world {} is: {}", world.getId(), ping);
 
 		if (panel.isActive())
@@ -890,8 +905,26 @@ public class WorldHopperPlugin extends Plugin
 			return;
 		}
 
-		int ping = ping(currentWorld);
-		log.trace("Ping for current world is: {}", currentPing);
+		int ping = ping(currentWorld, true);
+		log.trace("Ping for current world is: {}", ping);
+
+		FileDescriptor fd = client.getSocketFD();
+		int rtt = -1;
+		if (fd != null)
+		{
+			TCP_INFO_v0 tcpInfo = Ping.getTcpInfo(fd);
+			if (tcpInfo != null)
+			{
+				rtt = (int) (tcpInfo.RttUs.longValue() / 1000L);
+				retransmitCalculator.record(tcpInfo);
+			}
+		}
+
+		if (ping < 0)
+		{
+			ping = rtt; // use rtt for ping if icmp is blocked
+			storedPings.put(currentWorld.getId(), rtt);
+		}
 
 		if (ping < 0)
 		{
@@ -916,9 +949,9 @@ public class WorldHopperPlugin extends Plugin
 		return storedPings.get(world.getId());
 	}
 
-	private int ping(World world)
+	private int ping(World world, boolean isCurrentWorld)
 	{
-		int ping = Ping.ping(world);
+		int ping = Ping.ping(world, !isCurrentWorld);
 		storedPings.put(world.getId(), ping);
 		return ping;
 	}

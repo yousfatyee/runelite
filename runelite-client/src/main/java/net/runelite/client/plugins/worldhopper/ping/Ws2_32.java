@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, LlemonDuck <napkinorton@gmail.com>
+ * Copyright (c) 2026, Adam <Adam@sigterm.info>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,9 +22,19 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package net.runelite.client.plugins.worldhopper.ping;
 
-rootProject.name = "client"
-apply(from = "../common.settings.gradle.kts")
+import com.sun.jna.Library;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.ptr.IntByReference;
 
-includeBuild("../runelite-gradle-plugin")
-includeBuild("../runelite-jshell")
+interface Ws2_32 extends Library
+{
+	Ws2_32 INSTANCE = Native.loadLibrary("Ws2_32", Ws2_32.class);
+
+	int SIO_TCP_INFO = 0xD800_0027;
+
+	int WSAIoctl(WinNT.HANDLE socket, int dwIoControlCode, Pointer lpvInBuffer, int cbInBuffer, Pointer lpvOutBuffer, int cbOutBuffer, IntByReference lpcbBytesReturned, Pointer lpOverlapped, Pointer lpCompletionRoutine);
+}

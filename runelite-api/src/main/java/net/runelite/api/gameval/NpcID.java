@@ -64330,7 +64330,11 @@ public final class NpcID
 	 * Rusty chest
 	 */
 	public static final int REINFORCED_PIRATE_THIEVING_CHEST_GLE = 14813;
-	public static final int XMAS25_QUEUE_NPC_1 = 14814;
+
+	/**
+	 * Revenant imp
+	 */
+	public static final int WILD_CAVE_IMP_DEADMAN = 14814;
 
 	/**
 	 * Spooky chair
@@ -64548,8 +64552,16 @@ public final class NpcID
 	 * Elder Nama
 	 */
 	public static final int SLAYER_GRYPHON_BOSS_GUARDIAN_VIS = 14863;
-	public static final int XMAS25_QUEUE_NPC_2 = 14864;
-	public static final int XMAS25_QUEUE_NPC_3 = 14865;
+
+	/**
+	 * Revenant goblin
+	 */
+	public static final int WILD_CAVE_GOBLIN_DEADMAN = 14864;
+
+	/**
+	 * Revenant pyrefiend
+	 */
+	public static final int WILD_CAVE_PYREFIEND_DEADMAN = 14865;
 
 	/**
 	 * Henderson
@@ -65942,14 +65954,46 @@ public final class NpcID
 	 * Sailing cat
 	 */
 	public static final int SAILING_CHARTING_DRINK_CRATE_SAILING_CAT_EFFECT = 15177;
-	public static final int XMAS25_QUEUE_NPC_4 = 15178;
-	public static final int XMAS25_QUEUE_NPC_5 = 15179;
-	public static final int XMAS25_QUEUE_NPC_6 = 15180;
-	public static final int XMAS25_QUEUE_NPC_7 = 15181;
-	public static final int XMAS25_QUEUE_NPC_8 = 15182;
-	public static final int XMAS25_QUEUE_NPC_9 = 15183;
-	public static final int XMAS25_TABLE_NPC_1 = 15184;
-	public static final int XMAS25_TABLE_NPC_2 = 15185;
+
+	/**
+	 * Revenant hobgoblin
+	 */
+	public static final int WILD_CAVE_HOBGOBLIN_DEADMAN = 15178;
+
+	/**
+	 * Revenant cyclops
+	 */
+	public static final int WILD_CAVE_CYCLOPS_DEADMAN = 15179;
+
+	/**
+	 * Revenant hellhound
+	 */
+	public static final int WILD_CAVE_HELLHOUND_DEADMAN = 15180;
+
+	/**
+	 * Revenant demon
+	 */
+	public static final int WILD_CAVE_DEMON_DEADMAN = 15181;
+
+	/**
+	 * Revenant ork
+	 */
+	public static final int WILD_CAVE_ORK_DEADMAN = 15182;
+
+	/**
+	 * Revenant dark beast
+	 */
+	public static final int WILD_CAVE_DARKBEAST_DEADMAN = 15183;
+
+	/**
+	 * Revenant knight
+	 */
+	public static final int WILD_CAVE_KNIGHT_DEADMAN = 15184;
+
+	/**
+	 * Revenant dragon
+	 */
+	public static final int WILD_CAVE_DRAGON_DEADMAN = 15185;
 	public static final int BOAT_HP_NPC_TINY = 15186;
 	public static final int BOAT_HP_NPC_SMALL = 15187;
 	public static final int BOAT_HP_NPC_MEDIUM = 15188;
@@ -66185,7 +66229,11 @@ public final class NpcID
 	 * Dolphin calf
 	 */
 	public static final int SAILING_DOLPHIN_BABY = 15236;
-	public static final int XMAS25_TABLE_NPC_3 = 15237;
+
+	/**
+	 * Zemouregal
+	 */
+	public static final int DEADMAN_BREACH_LUCIEN = 15237;
 
 	/**
 	 * Junior Jim
@@ -67543,101 +67591,125 @@ public final class NpcID
 	 * Trader Crewmember
 	 */
 	public static final int SAILING_TRANSPORT_TRADER_STAN_CREW_WOMAN3_PORT_ROBERTS = 15546;
-	public static final int XMAS25_TABLE_NPC_4 = 15547;
 
 	/**
-	 * &#60;col=00ffff&#62;Stool
+	 * Big Evil Chicken
 	 */
-	public static final int XMAS25_STOOL_EMPTY = 15548;
+	public static final int DEADMAN_BREACH_EVIL_CHICKEN = 15547;
 
 	/**
-	 * Sir Prysin
+	 * Scurrius
 	 */
-	public static final int XMAS25_SIR_PRYSIN = 15549;
+	public static final int DEADMAN_BREACH_SCURRIUS = 15548;
 
 	/**
-	 * Aggie
+	 * Phantom Muspah
 	 */
-	public static final int XMAS25_AGGIE = 15550;
+	public static final int DEADMAN_BREACH_MUSPAH = 15549;
 
 	/**
-	 * Jobless Jim
+	 * Splatter
 	 */
-	public static final int XMAS25_JOBLESS_JIM = 15551;
+	public static final int DEADMAN_BREACH_SPLATTER = 15550;
 
 	/**
-	 * Hans
+	 * Tumeken's Warden
 	 */
-	public static final int XMAS25_HANS = 15552;
+	public static final int DEADMAN_BREACH_WARDEN_TUMEKEN_RANGE = 15551;
 
 	/**
-	 * Karim
+	 * Elidinis' Warden
 	 */
-	public static final int XMAS25_KARIM = 15553;
+	public static final int DEADMAN_BREACH_WARDEN_TUMEKEN_MAGE = 15552;
 
 	/**
-	 * Oziach
+	 * I DSCIM YOU
 	 */
-	public static final int XMAS25_OZIACH = 15554;
+	public static final int DEADMAN_BREACH_DSCIM_NPC = 15553;
 
 	/**
-	 * Rommik
+	 * Sol Heredit
 	 */
-	public static final int XMAS25_ROMMIK = 15555;
+	public static final int DEADMAN_BREACH_SOL_HEREDIT = 15554;
 
 	/**
-	 * Doris
+	 * Yama
 	 */
-	public static final int XMAS25_DORIS = 15556;
+	public static final int DEADMAN_BREACH_YAMA = 15555;
 
 	/**
-	 * Herquin
+	 * Pestilent Bloat
 	 */
-	public static final int XMAS25_HERQUIN = 15557;
+	public static final int DEADMAN_BREACH_BLOAT = 15556;
 
 	/**
-	 * Puffin
+	 * TzTok-Jad-Rek
 	 */
-	public static final int XMAS25_PUFFIN = 15558;
+	public static final int DEADMAN_BREACH_JAD_MINION = 15557;
 
 	/**
-	 * Cook
+	 * Zemouregal Summon
 	 */
-	public static final int XMAS25_CUTSCENE_CHEF_WITH_PLATE = 15559;
+	public static final int DEADMAN_BREACH_MUMMY_MINION = 15558;
 
 	/**
-	 * Cook
+	 * Zemouregal Summon
 	 */
-	public static final int XMAS25_CUTSCENE_CHEF_NO_PLATE = 15560;
+	public static final int DEADMAN_BREACH_SHADE_MINION = 15559;
 
 	/**
-	 * Bartender
+	 * Zemouregal Summon
 	 */
-	public static final int XMAS25_CUTSCENE_BARTENDER = 15561;
+	public static final int DEADMAN_BREACH_UNDEAD_ONE_MINION = 15560;
 
 	/**
-	 * Woman
+	 * Zemouregal Summon
 	 */
-	public static final int XMAS25_CUTSCENE_WOMAN1 = 15562;
+	public static final int DEADMAN_BREACH_PIRATE_MINION = 15561;
 
 	/**
-	 * Jonny the Beard
+	 * Zemouregal Summon
 	 */
-	public static final int XMAS25_CUTSCENE_JONNY = 15563;
+	public static final int DEADMAN_BREACH_ULFRIC_MINION = 15562;
 
 	/**
-	 * Dr Harlow
+	 * Zemouregal Summon
 	 */
-	public static final int XMAS25_CUTSCENE_DR_HARLOW = 15564;
+	public static final int DEADMAN_BREACH_KHAZARD_MINION = 15563;
 
 	/**
-	 * Barbarian
+	 * Zemouregal
 	 */
-	public static final int XMAS25_CUTSCENE_BARBARIAN = 15565;
+	public static final int DEADMAN_CHEST_ZEMOUREGAL = 15564;
+	public static final int DEADMAN_GUARD_UNKAH = 15565;
 
 	/**
-	 * Mod_Freddie
+	 * Guard
 	 */
-	public static final int XMAS25_CUTSCENE_FREDDIE = 15566;
+	public static final int DEADMAN_GUARD_UNKAH_VIS = 15566;
+	public static final int DEADMAN_GUARD_WINTERTODT = 15567;
+
+	/**
+	 * Guard
+	 */
+	public static final int DEADMAN_GUARD_WINTERTODT_VIS = 15568;
+	public static final int DEADMAN_THRALL_ZOMBIE_GREATER_ZUK = 15569;
+	public static final int DEADMAN_THRALL_SKELETAL_GREATER_PRINCESS = 15570;
+	public static final int DEADMAN_THRALL_GHOSTLY_GREATER_WISP = 15571;
+
+	/**
+	 * Ket-Zek
+	 */
+	public static final int TZHAAR_FIGHTPIT_SWARM_4A = 15572;
+
+	/**
+	 * Ket-Zek
+	 */
+	public static final int TZHAAR_FIGHTPIT_SWARM_4B = 15573;
+
+	/**
+	 * TzTok-Jad
+	 */
+	public static final int TZHAAR_FIGHTPIT_SWARM_BOSS = 15574;
 /* This file is automatically generated. Do not edit. */
 }

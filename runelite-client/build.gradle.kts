@@ -46,7 +46,7 @@ java {
 
 dependencies {
     api("net.runelite:runelite-api:${project.version}")
-    api("net.runelite:jshell:${project.version}")
+    implementation(project(":jshell"))
     runtimeOnly("net.runelite:injected-client:${project.version}")
 
     api(libs.rl.http.api)
@@ -70,7 +70,7 @@ dependencies {
     }
     api(libs.gson)
     api(libs.flatlaf.core)
-    api(libs.flatlaf.extras)
+    implementation(libs.flatlaf.extras)
     api(libs.commons.text)
     api(libs.jna.core)
     api(libs.jna.platform)
@@ -111,7 +111,7 @@ val shadowJar = tasks.register<Jar>("shadowJar") {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     from(sourceSets.main.get().output)
-    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+    from(configurations.runtimeClasspath.map { it.map { if (it.isDirectory) it else zipTree(it) } })
 
     exclude(
         "META-INF/INDEX.LIST",
@@ -148,6 +148,8 @@ tasks.withType<net.runelite.gradle.index.IndexTask> {
 }
 
 tasks.processResources {
+    inputs.property("projectVersion", project.version)
+
     val commit = ByteArrayOutputStream()
     exec {
         commandLine("git", "rev-parse", "--short=7", "HEAD")

@@ -32,6 +32,7 @@ import com.google.inject.Provides;
 import java.awt.image.BufferedImage;
 import java.io.FileDescriptor;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +57,7 @@ import net.runelite.api.FriendsChatMember;
 import net.runelite.api.GameState;
 import net.runelite.api.MenuAction;
 import net.runelite.api.NameableContainer;
+import net.runelite.api.Skill;
 import net.runelite.api.clan.ClanChannel;
 import net.runelite.api.clan.ClanChannelMember;
 import net.runelite.api.events.ChatMessage;
@@ -83,7 +85,7 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.worldhopper.ping.Ping;
 import net.runelite.client.plugins.worldhopper.ping.RetransmitCalculator;
-import net.runelite.client.plugins.worldhopper.ping.TCP_INFO_v0;
+import net.runelite.client.plugins.worldhopper.ping.TCPInfo;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.ui.overlay.OverlayManager;
@@ -557,6 +559,10 @@ public class WorldHopperPlugin extends Plugin
 
 		int worldIdx = worlds.indexOf(currentWorld);
 		int totalLevel = client.getTotalLevel();
+		final int f2pTotalLevel = Arrays.stream(Skill.values())
+			.filter(skill -> !skill.isMembers())
+			.mapToInt(client::getRealSkillLevel)
+			.sum();
 
 		final Set<RegionFilterMode> regionFilter = config.regionFilter();
 
@@ -591,7 +597,7 @@ public class WorldHopperPlugin extends Plugin
 			world = worlds.get(worldIdx);
 
 			// Check world region if filter is enabled
-			if (!regionFilter.isEmpty() && !regionFilter.contains(RegionFilterMode.of(world.getRegion())))
+			if (!regionFilter.isEmpty() && world.getRegion() != null && !regionFilter.contains(RegionFilterMode.of(world.getRegion())))
 			{
 				continue;
 			}
@@ -608,7 +614,12 @@ public class WorldHopperPlugin extends Plugin
 				{
 					int totalRequirement = Integer.parseInt(world.getActivity().substring(0, world.getActivity().indexOf(" ")));
 
-					if (totalLevel >= totalRequirement)
+					// F2P total level worlds only count the total level of your non-members skills, so it is possible
+					// to have a total level in excess of the world's level requirement (even without having trained
+					// members skills) and not fulfill that requirement
+					final int effectiveTotalLevel = types.contains(WorldType.MEMBERS) ? totalLevel : f2pTotalLevel;
+
+					if (effectiveTotalLevel >= totalRequirement)
 					{
 						types.remove(WorldType.SKILL_TOTAL);
 					}
@@ -912,10 +923,10 @@ public class WorldHopperPlugin extends Plugin
 		int rtt = -1;
 		if (fd != null)
 		{
-			TCP_INFO_v0 tcpInfo = Ping.getTcpInfo(fd);
+			TCPInfo tcpInfo = Ping.getTCPInfo(fd);
 			if (tcpInfo != null)
 			{
-				rtt = (int) (tcpInfo.RttUs.longValue() / 1000L);
+				rtt = (int) (tcpInfo.getRTT() / 1000L);
 				retransmitCalculator.record(tcpInfo);
 			}
 		}

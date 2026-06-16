@@ -31,11 +31,11 @@ import org.intellij.lang.annotations.MagicConstant;
 
 public interface WorldView
 {
-	int TOPLEVEL = -1;
+	int TOPLEVEL = 0;
 
 	/**
 	 * Get the world view id
-	 * @return the id, or -1 if this is the top level worldview
+	 * @return the id
 	 */
 	int getId();
 
@@ -214,20 +214,6 @@ public interface WorldView
 	 * @return the map regions
 	 */
 	int[] getMapRegions();
-
-	/**
-	 * Returns a 2D array containing XTEA encryption keys used to decrypt
-	 * map region files.
-	 * <p>
-	 * The array maps the region keys at index {@code n} to the region
-	 * ID held in {@link #getMapRegions()} at {@code n}.
-	 * <p>
-	 * The array of keys for the region make up a 128-bit encryption key
-	 * spread across 4 integers.
-	 *
-	 * @return the XTEA encryption keys
-	 */
-	int[][] getXteaKeys();
 
 	/**
 	 * Test if this worldview contains the given point

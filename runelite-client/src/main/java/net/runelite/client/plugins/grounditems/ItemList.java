@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Adam <Adam@sigterm.info>
+ * Copyright (c) 2026, Adam <Adam@sigterm.info>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,19 +22,53 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.api.events;
+package net.runelite.client.plugins.grounditems;
 
-import lombok.Data;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import lombok.Value;
+import net.runelite.client.util.WildcardMatcher;
 
-/**
- * Called every game cycle the client is dragging a widget on
- * the cursor.
- */
-@Data
-public class DraggingWidgetChanged
+@Value
+class ItemList
 {
-	/**
-	 * Whether a widget is currently being dragged.
-	 */
-	private boolean draggingWidget;
+	static final int NONE = 0;
+	static final int WILDCARD = 1;
+	static final int EXACT = 2;
+
+	List<ItemThreshold> items;
+
+	ItemList(List<String> items)
+	{
+		this.items = items.stream()
+			.map(ItemThreshold::fromName)
+			.filter(Objects::nonNull)
+			.collect(Collectors.toList());
+	}
+
+	int matches(GroundItem item)
+	{
+		for (ItemThreshold it : items)
+		{
+			if (!it.isWildcard()
+				&& it.getName().equalsIgnoreCase(item.getName())
+				&& it.quantityHolds(item.getQuantity()))
+			{
+				return EXACT;
+			}
+		}
+
+		for (ItemThreshold it : items)
+		{
+			if (it.isWildcard()
+				&& WildcardMatcher.matches(it.getName(), item.getName())
+				&& it.quantityHolds(item.getQuantity()))
+			{
+				return WILDCARD;
+			}
+		}
+
+		return NONE;
+	}
 }

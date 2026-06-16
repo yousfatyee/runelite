@@ -176,16 +176,16 @@ tab_clan=23
 tab_trade=27
 report_text=33
 frame=34
-transparent_background=36
-container=38
-title=42
-full_input=43
-ge_search_results=51
-messages=54
-transparent_background_lines=55
-input=56
-message_lines=57
-first_message=58
+transparent_background=37
+container=39
+title=43
+full_input=44
+ge_search_results=52
+messages=55
+transparent_background_lines=56
+input=57
+message_lines=58
+first_message=59
 
 [clan]
 id=701
@@ -259,7 +259,7 @@ id=13
 
 [deposit_box]
 id=192
-inventory_item_container=23
+inventory_item_container=24
 
 [destroy_item]
 id=584
@@ -601,9 +601,9 @@ solved=8
 [music]
 id=239
 container=0
-scroll_container=4
-list=6
-scrollbar=7
+scroll_container=8
+list=10
+scrollbar=11
 
 [nightmare_pillar_health]
 id=413
@@ -771,9 +771,9 @@ id=128
 [seed_vault]
 id=631
 title_container=2
-item_container=15
-item_text=16
-search_button=24
+item_container=16
+item_text=17
+search_button=26
 
 [seed_vault_inventory]
 id=630
@@ -785,11 +785,11 @@ init=1
 
 [settings_side]
 id=116
-camera_zoom_slider_track=57
-music_slider=98
-music_slider_step_holder=110
-sound_effect_slider=112
-area_sound_slider=126
+camera_zoom_slider_track=56
+music_slider=96
+music_slider_step_holder=108
+sound_effect_slider=110
+area_sound_slider=124
 
 [shop]
 id=300
@@ -823,11 +823,11 @@ id=218
 parent=0
 kourend_home_teleport=4
 catherby_home_teleport=5
-lumbridge_home_teleport=7
-edgeville_home_teleport=105
-lunar_home_teleport=106
-arceuus_home_teleport=150
-fertile_soil=131
+lumbridge_home_teleport=6
+edgeville_home_teleport=108
+lunar_home_teleport=109
+arceuus_home_teleport=153
+fertile_soil=134
 
 [tempoross]
 id=437
@@ -870,7 +870,7 @@ id=336
 
 [trailblazer_areas]
 id=512
-teleport=80
+teleport=82
 
 [trawler]
 id=366

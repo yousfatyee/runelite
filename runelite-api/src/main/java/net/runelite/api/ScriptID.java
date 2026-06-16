@@ -357,7 +357,7 @@ public final class ScriptID
 	 * <li>int (WidgetID) drag parent</li>
 	 * </ul>
 	 */
-	@ScriptArguments(integer = 11, string = 1)
+	@ScriptArguments(integer = 12, string = 1)
 	public static final int SETTINGS_SLIDER_CHOOSE_ONOP = 3885;
 
 	/**
@@ -483,10 +483,10 @@ public final class ScriptID
 	@ScriptArguments(integer = 1, string = 1)
 	public static final int POPUP_OVERLAY_YESNO_INIT = 4212;
 
-	@ScriptArguments(integer = 12)
+	@ScriptArguments(integer = 17)
 	public static final int BANK_DEPOSITBOX_INIT = 144;
 
-	@ScriptArguments(integer = 7)
+	@ScriptArguments(integer = 8)
 	public static final int SEED_VAULT_BUILD = 2819;
 
 	@ScriptArguments(integer = 4)
